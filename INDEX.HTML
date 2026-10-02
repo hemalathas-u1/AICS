@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShadowWatch AI | Threat Intelligence & Cybersecurity Monitoring</title>
+<style>
+:root{--bg:#02050d;--bg2:#06101f;--neon:#00b4ff;--cyan:#00f0ff;--text:#d6e6f5;--muted:#7f95ad;--glass:rgba(10,25,48,.55);--bd:rgba(0,180,255,.25);--crit:#ff3355;--high:#ff8a1f;--med:#ffd23f;--low:#22e07a}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(circle at 20% 0,#07183a 0,var(--bg) 55%);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;line-height:1.6;overflow-x:hidden}
+::-webkit-scrollbar{width:9px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:linear-gradient(var(--neon),var(--cyan));border-radius:9px}
+a{color:inherit;text-decoration:none}
+section{padding:90px 6%;position:relative}
+h2.t{font-size:clamp(1.8rem,4vw,2.6rem);text-align:center;margin-bottom:8px;background:linear-gradient(90deg,var(--neon),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+p.sub{text-align:center;color:var(--muted);margin-bottom:46px}
+.glass{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--bd);border-radius:16px;transition:.35s}
+.glass:hover{border-color:var(--cyan);box-shadow:0 0 28px rgba(0,200,255,.25)}
+.grid{display:grid;gap:22px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* loader */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .7s,visibility .7s}
+#loader.hide{opacity:0;visibility:hidden}
+.logo-ring{width:110px;height:110px;border-radius:50%;border:3px solid transparent;border-top-color:var(--cyan);border-bottom-color:var(--neon);animation:spin 1.2s linear infinite;display:grid;place-items:center;box-shadow:0 0 30px rgba(0,200,255,.5)}
+.logo-ring span{font-size:2.6rem;animation:spin 1.2s linear infinite reverse}
+.bar-l{width:240px;height:4px;background:#0a1a30;border-radius:4px;overflow:hidden}
+.bar-l i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--neon),var(--cyan));animation:load 2.2s forwards}
+.ld-txt{letter-spacing:4px;color:var(--cyan);font-size:.85rem;animation:pulse 1.2s infinite}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes load{to{width:100%}}
+@keyframes pulse{50%{opacity:.35}}
+@keyframes float{50%{transform:translateY(-10px)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(0,240,255,.6)}100%{box-shadow:0 0 0 14px transparent}}
+@keyframes neon{0%,100%{box-shadow:0 0 12px var(--neon)}50%{box-shadow:0 0 30px var(--cyan)}}
+/* nav */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 6%;background:rgba(2,5,13,.75);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+.brand{font-weight:800;font-size:1.25rem;letter-spacing:1px}.brand b{color:var(--cyan)}
+nav ul{display:flex;gap:22px;list-style:none;font-size:.9rem}
+nav ul a{color:var(--muted);transition:.3s}nav ul a:hover{color:var(--cyan);text-shadow:0 0 10px var(--cyan)}
+#clock{font-family:Consolas,monospace;color:var(--cyan);font-size:.85rem}
+#burger{display:none;background:none;border:1px solid var(--bd);color:var(--cyan);font-size:1.3rem;padding:2px 10px;border-radius:8px;cursor:pointer}
+/* hero */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+#bg{position:absolute;inset:0;width:100%;height:100%}
+.gridbg{position:absolute;inset:0;background-image:linear-gradient(rgba(0,180,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,255,.07) 1px,transparent 1px);background-size:50px 50px;mask-image:radial-gradient(circle,#000 20%,transparent 75%);-webkit-mask-image:radial-gradient(circle,#000 20%,transparent 75%)}
+.hero-in{position:relative;z-index:2;max-width:900px}
+.shield{font-size:4rem;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 18px var(--cyan))}
+#hero h1{font-size:clamp(2.6rem,8vw,5.5rem);font-weight:900;letter-spacing:2px;background:linear-gradient(90deg,#fff,var(--cyan),var(--neon));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 22px rgba(0,200,255,.5))}
+#hero h3{font-weight:400;color:var(--text);font-size:clamp(1rem,2.4vw,1.5rem);margin:12px 0}
+.type{font-family:Consolas,monospace;color:var(--cyan);min-height:1.6em;margin-bottom:30px}.type::after{content:'▌';animation:blink 1s infinite}
+.btn{display:inline-block;padding:14px 34px;border-radius:50px;border:1px solid var(--cyan);background:linear-gradient(135deg,rgba(0,180,255,.25),rgba(0,240,255,.1));color:#fff;font-weight:600;letter-spacing:1px;cursor:pointer;font-size:1rem;transition:.3s;animation:neon 2.5s infinite}
+.btn:hover{transform:translateY(-3px) scale(1.04);background:var(--neon);color:#00101f}
+/* about */
+.about-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:30px;align-items:stretch}
+.card{padding:28px}.card h4{color:var(--cyan);margin-bottom:10px;font-size:1.15rem}
+.card p,.card li{color:var(--muted)}.card ul{list-style:none}.card li{padding:5px 0}.card li::before{content:'▸ ';color:var(--cyan)}
+/* stats */
+.stat{text-align:center;padding:30px 16px;animation:float 5s ease-in-out infinite}
+.stat:nth-child(2){animation-delay:.6s}.stat:nth-child(3){animation-delay:1.2s}.stat:nth-child(4){animation-delay:1.8s}
+.stat .n{font-size:2.6rem;font-weight:800;color:var(--cyan);text-shadow:0 0 18px rgba(0,240,255,.6)}.stat span.l{color:var(--muted);font-size:.9rem}
+/* features */
+.feat{padding:30px;text-align:left;cursor:default}
+.feat:hover{transform:translateY(-10px) scale(1.02)}
+.feat .ic{font-size:2rem;width:60px;height:60px;display:grid;place-items:center;border-radius:14px;background:rgba(0,180,255,.12);border:1px solid var(--bd);margin-bottom:14px;transition:.4s}
+.feat:hover .ic{transform:rotate(360deg);background:rgba(0,240,255,.25)}
+.feat h4{margin-bottom:6px}.feat p{color:var(--muted);font-size:.93rem}
+/* dashboard */
+.dc{padding:24px;position:relative;overflow:hidden}
+.dc small{color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-size:.75rem}
+.dc .v{font-size:2.4rem;font-weight:800;margin:4px 0}
+.dc .dot{position:absolute;top:18px;right:18px;width:10px;height:10px;border-radius:50%;background:var(--low);animation:ping 1.6s infinite}
+.dc.r .v{color:var(--crit)}.dc.o .v{color:var(--high)}.dc.c .v{color:var(--cyan)}.dc.g .v{color:var(--low)}
+.live{display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;color:var(--low);font-size:.85rem}
+/* table */
+.tools{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.tools input,.tools select{background:rgba(5,15,30,.8);border:1px solid var(--bd);color:var(--text);padding:11px 16px;border-radius:10px;outline:none;font-size:.95rem}
+.tools input{flex:1;min-width:200px}.tools input:focus,.tools select:focus{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,240,255,.3)}
+.tw{overflow:auto;max-height:560px;padding:0}
+table{width:100%;border-collapse:collapse;min-width:760px;font-size:.9rem}
+th{position:sticky;top:0;background:#071427;color:var(--cyan);text-align:left;padding:14px;font-size:.78rem;letter-spacing:1px;text-transform:uppercase;z-index:1}
+td{padding:12px 14px;border-top:1px solid rgba(0,180,255,.1)}
+tbody tr{transition:.25s}tbody tr:hover{background:rgba(0,180,255,.1)}
+tr.new{animation:flash 1.5s}@keyframes flash{from{background:rgba(0,240,255,.35)}}
+.sev{padding:3px 12px;border-radius:20px;font-size:.75rem;font-weight:700;border:1px solid}
+.Critical{color:var(--crit);background:rgba(255,51,85,.12)}.High{color:var(--high);background:rgba(255,138,31,.12)}.Medium{color:var(--med);background:rgba(255,210,63,.12)}.Low{color:var(--low);background:rgba(34,224,122,.12)}
+.mono{font-family:Consolas,monospace}
+/* intel */
+.intel{max-width:850px;margin:auto;padding:30px}
+.pr{margin-bottom:22px}.pr .h{display:flex;justify-content:space-between;margin-bottom:7px;font-weight:600}
+.trk{height:12px;background:#0a1a30;border-radius:10px;overflow:hidden}
+.fill{height:100%;width:0;border-radius:10px;background:linear-gradient(90deg,var(--neon),var(--cyan));box-shadow:0 0 14px var(--cyan);transition:width 1.8s cubic-bezier(.2,.8,.2,1)}
+/* analytics */
+.ch{padding:22px}.ch h4{margin-bottom:12px;color:var(--cyan)}canvas.cv{width:100%;height:260px;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:.8rem;color:var(--muted)}.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+/* alerts */
+.al{padding:22px}.al h4{color:var(--cyan);margin-bottom:14px}
+.item{padding:11px 12px;border-left:3px solid var(--neon);background:rgba(0,180,255,.06);border-radius:0 8px 8px 0;margin-bottom:10px;font-size:.88rem;animation:slide .5s}
+.item.crit{border-color:var(--crit)}.item.warn{border-color:var(--high)}.item.ok{border-color:var(--low)}.item small{display:block;color:var(--muted)}
+@keyframes slide{from{opacity:0;transform:translateX(-20px)}}
+/* reports */
+.rep{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+#repmsg{text-align:center;margin-top:24px;color:var(--cyan);font-family:Consolas,monospace;min-height:1.5em}
+/* footer */
+footer{background:#010309;border-top:1px solid var(--bd);padding:50px 6% 24px}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:30px;margin-bottom:30px}
+footer h5{color:var(--cyan);margin-bottom:10px}footer p,footer a{color:var(--muted);font-size:.9rem;display:block;margin-bottom:5px}footer a:hover{color:var(--cyan)}
+.cp{text-align:center;color:var(--muted);font-size:.82rem;border-top:1px solid rgba(0,180,255,.12);padding-top:18px}
+/* toast */
+#toasts{position:fixed;right:18px;bottom:18px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{padding:12px 18px;background:rgba(6,16,31,.95);border:1px solid var(--cyan);border-left:4px solid var(--crit);border-radius:10px;box-shadow:0 0 20px rgba(0,200,255,.3);font-size:.85rem;max-width:300px;animation:slide .4s}
+/* reveal */
+.rv{opacity:0;transition:opacity .9s,transform .9s}
+.fade{}.up{transform:translateY(50px)}.zoom{transform:scale(.8)}
+.rv.in{opacity:1;transform:none}
+@media(max-width:860px){.about-grid{grid-template-columns:1fr}#burger{display:block}#clock{display:none}
+nav ul{position:absolute;top:100%;left:0;width:100%;flex-direction:column;background:rgba(2,5,13,.97);padding:0 6%;max-height:0;overflow:hidden;transition:.4s}
+nav ul.open{max-height:420px;padding:14px 6%}section{padding:70px 5%}}
+</style>
+</head>
+<body>
+<div id="loader"><div class="logo-ring"><span>🛡️</span></div><div class="brand" style="font-size:1.8rem">Shadow<b>Watch</b> AI</div><div class="bar-l"><i></i></div><div class="ld-txt">INITIALIZING SECURITY CORE...</div></div>
+
+<nav>
+ <a href="#hero" class="brand">🛡️ Shadow<b>Watch</b> AI</a>
+ <ul id="menu"><li><a href="#about">About</a></li><li><a href="#features">Features</a></li><li><a href="#dashboard">Dashboard</a></li><li><a href="#threats">Threats</a></li><li><a href="#intel">Intel</a></li><li><a href="#analytics">Analytics</a></li><li><a href="#alerts">Alerts</a></li><li><a href="#reports">Reports</a></li></ul>
+ <span id="clock"></span><button id="burger" aria-label="Menu">☰</button>
+</nav>
+
+<section id="hero">
+ <canvas id="bg"></canvas><div class="gridbg"></div>
+ <div class="hero-in">
+  <div class="shield">🛡️</div>
+  <h1>ShadowWatch AI</h1>
+  <h3>Advanced Threat Intelligence and Cybersecurity Monitoring System</h3>
+  <div class="type" id="type"></div>
+  <a href="#dashboard" class="btn">Launch Dashboard</a>
+ </div>
+</section>
+
+<section id="about">
+ <h2 class="t rv up">About ShadowWatch AI</h2><p class="sub rv fade">Intelligent defense for a hostile digital world</p>
+ <div class="about-grid">
+  <div class="glass card rv up"><h4>Project Description</h4><p>ShadowWatch AI is a next-generation security operations platform that fuses machine learning, global threat feeds and behavioral analytics to detect, prioritize and respond to cyber attacks in real time — across endpoints, networks and cloud workloads.</p><br><h4>Our Mission</h4><p>To make enterprise-grade threat intelligence accessible, actionable and instant, so every organization can see danger before it strikes.</p></div>
+  <div class="glass card rv zoom"><h4>Key Benefits</h4><ul><li>Detect threats in milliseconds with AI models</li><li>Reduce false positives by up to 90%</li><li>Unified visibility across all assets</li><li>Automated risk scoring and response</li><li>Compliance-ready audit reporting</li><li>Scales from startups to enterprises</li></ul></div>
+ </div>
+</section>
+
+<section id="stats">
+ <div class="grid g4">
+  <div class="glass stat rv zoom"><div class="n" data-t="125847" data-d="0">0</div><span class="l">Threats Detected</span></div>
+  <div class="glass stat rv zoom"><div class="n" data-t="8429" data-d="0">0</div><span class="l">Protected Systems</span></div>
+  <div class="glass stat rv zoom"><div class="n" data-t="99.7" data-d="1" data-s="%">0</div><span class="l">Security Accuracy</span></div>
+  <div class="glass stat rv zoom"><div class="n" data-t="24" data-d="0" data-s="/7">0</div><span class="l">Active Monitoring</span></div>
+ </div>
+</section>
+
+<section id="features">
+ <h2 class="t rv up">Core Features</h2><p class="sub rv fade">Everything you need to stay ahead of attackers</p>
+ <div class="grid g3">
+  <div class="glass feat rv up"><div class="ic">📡</div><h4>Real-Time Monitoring</h4><p>Continuous 24/7 visibility into traffic, endpoints and user activity with instant anomaly alerts.</p></div>
+  <div class="glass feat rv up"><div class="ic">🧠</div><h4>AI Threat Detection</h4><p>Deep-learning models identify zero-day exploits and stealthy behaviors that signatures miss.</p></div>
+  <div class="glass feat rv up"><div class="ic">🌐</div><h4>Threat Intelligence</h4><p>Global feeds of IOCs, malicious IPs and attacker TTPs correlated against your environment.</p></div>
+  <div class="glass feat rv up"><div class="ic">⚖️</div><h4>Risk Assessment</h4><p>Dynamic risk scoring ranks assets and vulnerabilities by real business impact.</p></div>
+  <div class="glass feat rv up"><div class="ic">📊</div><h4>Security Analytics</h4><p>Interactive dashboards and trend analysis reveal patterns across time, sources and severity.</p></div>
+  <div class="glass feat rv up"><div class="ic">📝</div><h4>Incident Reporting</h4><p>One-click, audit-ready reports with full timelines, evidence and remediation steps.</p></div>
+ </div>
+</section>
+
+<section id="dashboard">
+ <h2 class="t rv up">Security Dashboard</h2><p class="sub rv fade">Live operational overview</p>
+ <div style="text-align:center" class="rv fade"><span class="live"><span class="dc" style="padding:0;width:10px;height:10px;display:inline-block;border-radius:50%;background:var(--low);animation:ping 1.6s infinite"></span> LIVE DATA — updated <b id="upd">now</b></span></div>
+ <div class="grid g4">
+  <div class="glass dc r rv zoom"><i class="dot" style="background:var(--crit)"></i><small>Active Threats</small><div class="v" id="dThreat">142</div><small id="dThreatS">▲ 4 in last minute</small></div>
+  <div class="glass dc o rv zoom"><i class="dot" style="background:var(--high)"></i><small>Critical Alerts</small><div class="v" id="dCrit">17</div><small>Requires immediate action</small></div>
+  <div class="glass dc c rv zoom"><i class="dot"></i><small>Security Score</small><div class="v"><span id="dScore">94</span>/100</div><small>Overall posture: Strong</small></div>
+  <div class="glass dc g rv zoom"><i class="dot"></i><small>Protected Systems</small><div class="v" id="dSys">8,429</div><small>All agents online</small></div>
+ </div>
+</section>
+
+<section id="threats">
+ <h2 class="t rv up">Threat Monitoring</h2><p class="sub rv fade">Live feed of detected incidents</p>
+ <div class="tools rv fade"><input id="search" placeholder="🔍 Search by ID, type, IP or status..."><select id="fSev"><option value="">All Severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select><select id="fSta"><option value="">All Statuses</option><option>Active</option><option>Investigating</option><option>Contained</option><option>Resolved</option></select></div>
+ <div class="glass tw rv up"><table><thead><tr><th>Threat ID</th><th>Threat Type</th><th>Source IP</th><th>Severity</th><th>Status</th><th>Timestamp</th></tr></thead><tbody id="tbody"></tbody></table></div>
+</section>
+
+<section id="intel">
+ <h2 class="t rv up">Threat Intelligence</h2><p class="sub rv fade">Global threat landscape by category</p>
+ <div class="glass intel rv zoom" id="intelBox"></div>
+</section>
+
+<section id="analytics">
+ <h2 class="t rv up">Security Analytics</h2><p class="sub rv fade">Drawn with pure JavaScript and Canvas</p>
+ <div class="grid g3">
+  <div class="glass ch rv up"><h4>Threats Over Time (Live)</h4><canvas class="cv" id="cLine"></canvas></div>
+  <div class="glass ch rv up"><h4>Attacks by Category</h4><canvas class="cv" id="cBar"></canvas></div>
+  <div class="glass ch rv up"><h4>Severity Distribution</h4><canvas class="cv" id="cPie"></canvas><div class="legend" id="lgPie"></div></div>
+ </div>
+</section>
+
+<section id="alerts">
+ <h2 class="t rv up">Alerts Center</h2><p class="sub rv fade">Stay informed the moment something happens</p>
+ <div class="grid g3">
+  <div class="glass al rv up"><h4>🚨 Recent Alerts</h4><div id="aRecent"></div></div>
+  <div class="glass al rv up"><h4>🔔 Notifications</h4><div id="aNotif"></div></div>
+  <div class="glass al rv up"><h4>⚠️ Risk Warnings</h4><div id="aRisk"></div></div>
+ </div>
+</section>
+
+<section id="reports">
+ <h2 class="t rv up">Reports</h2><p class="sub rv fade">Generate and share security reports</p>
+ <div class="rep rv zoom"><button class="btn" data-r="pdf">📄 Export PDF</button><button class="btn" data-r="csv">📊 Export CSV</button><button class="btn" data-r="print">🖨️ Print Report</button></div>
+ <div id="repmsg"></div>
+</section>
+
+<footer>
+ <div class="fg">
+  <div><h5>About</h5><p>ShadowWatch AI — Advanced Threat Intelligence and Cybersecurity Monitoring System.</p><a href="#about">Our Mission</a></div>
+  <div><h5>Contact</h5><p>security@shadowwatch.ai</p><p>+1 (555) 013-0042</p><p>SOC Hotline: 24/7</p></div>
+  <div><h5>GitHub</h5><a href="https://github.com" target="_blank" rel="noopener">github.com/shadowwatch-ai</a><a href="#features">Documentation</a></div>
+ </div>
+ <div class="cp">© <span id="yr"></span> ShadowWatch AI. All rights reserved.</div>
+</footer>
+<div id="toasts"></div>
+
+<script>
+const $=s=>document.querySelector(s),R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,P=a=>a[R(0,a.length-1)];
+const pad=n=>String(n).padStart(2,'0');
+/* loader */
+window.addEventListener('load',()=>setTimeout(()=>$('#loader').classList.add('hide'),2400));
+/* nav */
+$('#burger').onclick=()=>$('#menu').classList.toggle('open');
+document.querySelectorAll('#menu a').forEach(a=>a.onclick=()=>$('#menu').classList.remove('open'));
+$('#yr').textContent=new Date().getFullYear();
+/* clock */
+(function t(){const d=new Date();$('#clock').textContent='🟢 '+d.toUTCString().slice(17,25)+' UTC';setTimeout(t,1000)})();
+/* typing */
+const lines=['> Scanning global threat feeds...','> AI engine online. Zero-day detection active.','> Protecting 8,429 systems in real time.','> ShadowWatch AI: See danger before it strikes.'];
+let li=0,ci=0,del=false;
+(function ty(){const s=lines[li];ci+=del?-1:1;$('#type').textContent=s.slice(0,ci);let sp=del?25:55;
+if(!del&&ci===s.length){del=true;sp=1600}else if(del&&ci===0){del=false;li=(li+1)%lines.length;sp=400}setTimeout(ty,sp)})();
+/* particles */
+(function(){const c=$('#bg'),x=c.getContext('2d');let w,h,ps=[];
+function rs(){w=c.width=c.offsetWidth;h=c.height=c.offsetHeight;ps=Array.from({length:Math.min(90,w/12|0)},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6,r:Math.random()*2+.8}))}
+rs();addEventListener('resize',rs);
+(function a(){x.clearRect(0,0,w,h);ps.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;
+x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle='rgba(0,240,255,.85)';x.shadowColor='#00f0ff';x.shadowBlur=10;x.fill();x.shadowBlur=0;
+for(let j=i+1;j<ps.length;j++){const q=ps[j],d=Math.hypot(p.x-q.x,p.y-q.y);if(d<120){x.strokeStyle=`rgba(0,180,255,${.22*(1-d/120)})`;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke()}}});requestAnimationFrame(a)})()})();
+/* counters + reveal */
+function count(el){const T=+el.dataset.t,D=+el.dataset.d,S=el.dataset.s||'',st=performance.now();
+(function f(n){const k=Math.min((n-st)/2200,1),e=1-Math.pow(1-k,3),v=T*e;el.textContent=(D?v.toFixed(D):Math.round(v).toLocaleString())+S;if(k<1)requestAnimationFrame(f)})(st)}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('.n').forEach(count);if(e.target.id==='intelBox')setTimeout(()=>document.querySelectorAll('.fill').forEach(f=>f.style.width=f.dataset.w+'%'),200);io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.rv').forEach(e=>io.observe(e));
+/* intel */
+const intel=[['🦠 Malware',78],['🎣 Phishing',91],['🔒 Ransomware',64],['🌊 DDoS',72],['🕵️ Insider Threat',43]];
+$('#intelBox').innerHTML=intel.map(([n,v])=>`<div class="pr"><div class="h"><span>${n}</span><span>${v}%</span></div><div class="trk"><div class="fill" data-w="${v}"></div></div></div>`).join('');
+/* threats */
+const types=['Malware','Phishing','Ransomware','DDoS','Insider Threat','SQL Injection','Brute Force','Zero-Day Exploit','Data Exfiltration','Port Scan'],
+sevs=['Critical','High','Medium','Low'],stas=['Active','Investigating','Contained','Resolved'];
+let rows=[],idc=1000;
+const ip=()=>`${R(11,223)}.${R(0,255)}.${R(0,255)}.${R(1,254)}`;
+function rec(ago){const d=new Date(Date.now()-(ago||0)*1000);return{id:'THR-'+(++idc),type:P(types),ip:ip(),sev:P([...sevs,'High','Medium','Low','Medium']),sta:P(stas),ts:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}}
+for(let i=25;i>0;i--)rows.push(rec(i*137));rows.reverse();
+function render(newId){const q=$('#search').value.toLowerCase(),fs=$('#fSev').value,ft=$('#fSta').value;
+const f=rows.filter(r=>(!fs||r.sev===fs)&&(!ft||r.sta===ft)&&(!q||Object.values(r).join(' ').toLowerCase().includes(q)));
+$('#tbody').innerHTML=f.length?f.map(r=>`<tr class="${r.id===newId?'new':''}"><td class="mono">${r.id}</td><td>${r.type}</td><td class="mono">${r.ip}</td><td><span class="sev ${r.sev}" style="border-color:currentColor">${r.sev}</span></td><td>${r.sta}</td><td class="mono">${r.ts}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted)">No matching threats found</td></tr>'}
+['search','fSev','fSta'].forEach(i=>$('#'+i).addEventListener('input',()=>render()));
+render();
+/* toast + alerts */
+function toast(m,c){const t=document.createElement('div');t.className='toast';if(c)t.style.borderLeftColor=c;t.innerHTML=m;$('#toasts').appendChild(t);setTimeout(()=>{t.style.transition='.5s';t.style.opacity=0;setTimeout(()=>t.remove(),500)},4500)}
+const clr={Critical:'#ff3355',High:'#ff8a1f',Medium:'#ffd23f',Low:'#22e07a'};
+function push(id,html,cls){const b=$(id),d=document.createElement('div');d.className='item '+cls;d.innerHTML=html;b.prepend(d);while(b.children.length>5)b.lastChild.remove()}
+const now=()=>new Date().toTimeString().slice(0,8);
+['Ransomware signature blocked on FIN-SRV-02','Brute-force attempt from 185.220.101.4','Phishing campaign targeting HR mailbox'].forEach(m=>push('#aRecent',m+`<small>${now()}</small>`,'crit'));
+['Signature database updated to v9.4.2','Weekly vulnerability scan completed','Backup integrity verified'].forEach(m=>push('#aNotif',m+`<small>${now()}</small>`,'ok'));
+['3 servers running outdated OS patches','Unusual data transfer volume detected','MFA disabled on 12 privileged accounts'].forEach(m=>push('#aRisk',m+`<small>${now()}</small>`,'warn'));
+const notifs=['New threat intel feed synced','Endpoint agent updated on 214 hosts','Firewall rules optimized','AI model retrained successfully','Compliance scan passed'],
+risks=['Expired SSL certificate on web-gw-03','Open RDP port detected on 10.0.4.17','Privilege escalation pattern observed','Shadow IT application discovered'];
+/* charts */
+let line=Array.from({length:14},()=>R(40,120));
+const bars=[['Malware',78],['Phish',91],['Ransom',64],['DDoS',72],['Insider',43],['Brute',58]];
+function setup(c){const r=devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;c.width=w*r;c.height=h*r;const x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);x.clearRect(0,0,w,h);return[x,w,h]}
+function drawLine(){const[x,w,h]=setup($('#cLine')),m=34,mx=Math.max(...line)+20;
+x.strokeStyle='rgba(0,180,255,.15)';x.fillStyle='#7f95ad';x.font='11px sans-serif';
+for(let i=0;i<=4;i++){const y=m/2+(h-m*1.3)*i/4;x.beginPath();x.moveTo(m,y);x.lineTo(w-10,y);x.stroke();x.fillText(Math.round(mx*(1-i/4)),4,y+4)}
+const pt=(v,i)=>[m+(w-m-10)*i/(line.length-1),m/2+(h-m*1.3)*(1-v/mx)];
+x.beginPath();line.forEach((v,i)=>{const[a,b]=pt(v,i);i?x.lineTo(a,b):x.moveTo(a,b)});
+x.strokeStyle='#00f0ff';x.lineWidth=2.5;x.shadowColor='#00f0ff';x.shadowBlur=12;x.stroke();x.shadowBlur=0;
+x.lineTo(w-10,h-m*.8);x.lineTo(m,h-m*.8);const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(0,240,255,.35)');g.addColorStop(1,'rgba(0,240,255,0)');x.fillStyle=g;x.fill();
+line.forEach((v,i)=>{const[a,b]=pt(v,i);x.beginPath();x.arc(a,b,3.5,0,7);x.fillStyle='#fff';x.fill()})}
+let bp=0;
+function drawBar(){const[x,w,h]=setup($('#cBar')),m=30,bw=(w-m)/bars.length;
+x.font='11px sans-serif';
+bars.forEach(([n,v],i)=>{const bh=(h-m-20)*(v/100)*bp,bx=m+i*bw+bw*.18,by=h-m-bh,g=x.createLinearGradient(0,by,0,h-m);g.addColorStop(0,'#00f0ff');g.addColorStop(1,'#0060ff');
+x.fillStyle=g;x.shadowColor='#00b4ff';x.shadowBlur=10;x.fillRect(bx,by,bw*.64,bh);x.shadowBlur=0;x.fillStyle='#7f95ad';x.textAlign='center';x.fillText(n,bx+bw*.32,h-12);x.fillStyle='#fff';x.fillText(Math.round(v*bp),bx+bw*.32,by-6)})}
+let pp=0;
+function drawPie(){const[x,w,h]=setup($('#cPie')),cnt=sevs.map(s=>rows.filter(r=>r.sev===s).length),tot=cnt.reduce((a,b)=>a+b,0)||1,cx=w/2,cy=h/2,rad=Math.min(w,h)/2-14;let a=-Math.PI/2;
+cnt.forEach((c,i)=>{const sw=(c/tot)*Math.PI*2*pp;x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,rad,a,a+sw);x.closePath();x.fillStyle=clr[sevs[i]];x.shadowColor=clr[sevs[i]];x.shadowBlur=8;x.fill();x.shadowBlur=0;x.strokeStyle='#02050d';x.lineWidth=2;x.stroke();a+=sw});
+x.beginPath();x.arc(cx,cy,rad*.52,0,7);x.fillStyle='#06101f';x.fill();x.fillStyle='#fff';x.font='bold 20px sans-serif';x.textAlign='center';x.fillText(tot,cx,cy+4);x.font='11px sans-serif';x.fillStyle='#7f95ad';x.fillText('threats',cx,cy+20);
+$('#lgPie').innerHTML=sevs.map((s,i)=>`<span><i style="background:${clr[s]}"></i>${s} (${cnt[i]})</span>`).join('')}
+function anim(){bp=pp=0;(function f(){bp=Math.min(bp+.03,1);pp=Math.min(pp+.03,1);drawBar();drawPie();if(bp<1)requestAnimationFrame(f)})()}
+new IntersectionObserver((e,o)=>{if(e[0].isIntersecting){drawLine();anim();o.disconnect()}},{threshold:.2}).observe($('#analytics'));
+addEventListener('resize',()=>{drawLine();drawBar();drawPie()});
+/* dashboard live updates */
+let thr=142,crit=17,score=94;
+setInterval(()=>{const d=R(-4,6);thr=Math.max(90,thr+d);crit=Math.max(5,crit+R(-2,2));score=Math.min(99,Math.max(85,score+R(-1,1)));
+$('#dThreat').textContent=thr;$('#dThreatS').textContent=(d>=0?'▲ ':'▼ ')+Math.abs(d)+' in last minute';$('#dCrit').textContent=crit;$('#dScore').textContent=score;$('#dSys').textContent=(8429+R(-3,6)).toLocaleString();$('#upd').textContent=now();
+line.push(Math.max(30,line[line.length-1]+R(-25,30)));line.shift();drawLine()},2500);
+/* live threat generator */
+setInterval(()=>{const r=rec();rows.unshift(r);rows.pop();render(r.id);drawPie();
+const c=r.sev==='Critical'||r.sev==='High';
+if(r.sev==='Critical')toast(`🚨 <b>CRITICAL</b>: ${r.type} from <span class="mono">${r.ip}</span>`,clr.Critical);
+push('#aRecent',`${r.sev}: ${r.type} from ${r.ip}<small>${now()} • ${r.id}</small>`,c?'crit':'warn')},5000);
+setInterval(()=>{const m=P(notifs);push('#aNotif',m+`<small>${now()}</small>`,'ok');toast('🔔 '+m,'#00b4ff')},9000);
+setInterval(()=>push('#aRisk',P(risks)+`<small>${now()}</small>`,'warn'),11000);
+/* reports */
+const msg=t=>{$('#repmsg').textContent=t};
+document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const k=b.dataset.r;
+if(k==='csv'){msg('> Generating CSV...');setTimeout(()=>{const csv='Threat ID,Type,Source IP,Severity,Status,Timestamp\n'+rows.map(r=>[r.id,r.type,r.ip,r.sev,r.sta,r.ts].join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='shadowwatch-report.csv';a.click();msg('✔ CSV report exported successfully.');toast('📊 CSV exported','#22e07a')},900)}
+else if(k==='pdf'){msg('> Compiling PDF report...');setTimeout(()=>{msg('✔ PDF report generated (simulated): shadowwatch-report.pdf');toast('📄 PDF export simulated','#22e07a')},1400)}
+else{msg('> Preparing print layout...');setTimeout(()=>{window.print();msg('✔ Print dialog opened.')},600)}});
+toast('🛡️ ShadowWatch AI monitoring active','#22e07a');
+</script>
+</body>
+</html>
